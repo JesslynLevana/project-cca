@@ -1,33 +1,20 @@
-# Dockerfile
-FROM php:8.2-fpm
+# Base image PHP
+FROM php:8.2-cli
 
-# Set working directory
+# Set working directory di container
 WORKDIR /var/www
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    git \
-    curl
-
-# Install extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
-
-# Install composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Copy project
+# Copy semua file Laravel ke container
 COPY . .
 
-# Install composer dependencies
-RUN composer install --no-dev --optimize-autoloader
+# Install composer
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
+    && rm composer-setup.php \
+    && composer install --no-dev --optimize-autoloader
 
-# Expose port
+# Expose port 8000
 EXPOSE 8000
 
-# Start Laravel server
-CMD php artisan serve --host=0.0.0.0 --port=8000
+# Start Laravel server dari folder public
+CMD php -S 0.0.0.0:8000 -t public
