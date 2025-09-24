@@ -16,8 +16,11 @@ COPY . .
 # Install Laravel dependencies
 RUN composer install --no-dev --optimize-autoloader
 
+# Set permission for Laravel
+RUN chmod -R 775 storage bootstrap/cache
+
 # Expose port
 EXPOSE 8000
 
-# Start Laravel server
-CMD php -S 0.0.0.0:8000 -t public
+# Run migrations (opsional) lalu start Laravel server
+CMD php artisan config:cache && php artisan migrate --force && php -S 0.0.0.0:8000 -t public
